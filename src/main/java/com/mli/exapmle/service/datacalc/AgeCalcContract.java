@@ -1,11 +1,11 @@
 package com.mli.exapmle.service.datacalc;
 
 import com.mli.exapmle.dto.CalculationDto;
-import com.mli.exapmle.contract.DataCalculationService;
+import com.mli.exapmle.contract.DataCalcContract;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AgeCalculationService implements DataCalculationService {
+public class AgeCalcContract implements DataCalcContract {
 
     @Override
     public void calculate(CalculationDto dto) {

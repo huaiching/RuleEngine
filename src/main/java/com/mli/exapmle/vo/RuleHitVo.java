@@ -3,6 +3,7 @@ package com.mli.exapmle.vo;
 public class RuleHitVo {
     private String code;
     private String desc;
+    private String level;
 
     public String getDesc() {
         return desc;
@@ -18,5 +19,13 @@ public class RuleHitVo {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
     }
 }

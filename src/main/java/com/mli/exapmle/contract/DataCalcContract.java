@@ -3,7 +3,7 @@ package com.mli.exapmle.contract;
 import com.mli.exapmle.dto.CalculationDto;
 
 // 抽象類作為標記，無方法
-public interface DataCalculationService {
+public interface DataCalcContract {
 
     /**
      * 子類需實作 calculate 方法

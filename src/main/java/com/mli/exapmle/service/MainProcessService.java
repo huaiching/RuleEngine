@@ -3,9 +3,10 @@ package com.mli.exapmle.service;
 
 import com.mli.exapmle.dto.CalculationDto;
 import com.mli.exapmle.dto.InputDto;
+import com.mli.exapmle.dto.RuleCodeDto;
 import com.mli.exapmle.vo.RuleHitVo;
-import com.mli.exapmle.contract.DataCalculationService;
-import com.mli.exapmle.contract.RuleEvaluationService;
+import com.mli.exapmle.contract.DataCalcContract;
+import com.mli.exapmle.contract.RuleContract;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,13 @@ import java.util.concurrent.CompletableFuture;
 public class MainProcessService {
 
     @Autowired
-    private List<DataCalculationService> dataCalcServices;  // 自動注入所有子類
+    private List<DataCalcContract> dataCalcServices;  // 自動注入所有子類
 
     @Autowired
     private RuleTableService ruleTableService;
 
     @Autowired
-    private List<RuleEvaluationService> ruleEvalServices;  // 自動注入所有子類
+    private List<RuleContract> ruleEvalServices;  // 自動注入所有子類
 
     public List<RuleHitVo> executeProcess(InputDto inputDto) {
         CalculationDto dto = new CalculationDto();
@@ -35,19 +36,19 @@ public class MainProcessService {
 
         // 數據計算 非同步
         List<CompletableFuture<Void>> calcFutures = new ArrayList<>();
-        for (DataCalculationService calcService : dataCalcServices) {
+        for (DataCalcContract calcService : dataCalcServices) {
             calcFutures.add(CompletableFuture.runAsync(() -> calcService.calculate(dto)));
         }
         CompletableFuture.allOf(calcFutures.toArray(new CompletableFuture[0])).join();
 
         // 讀取規則表
         List<String> ruleTable = ruleTableService.getRuleTable();
-        Map<String, String> ruleMap = ruleTableService.getRuleCodeToChineseMap();
+        List<RuleCodeDto> ruleCodeList = ruleTableService.getRuleCodeToChineseMap();
 
         // 規則判斷 非同步
         List<CompletableFuture<List<RuleHitVo>>> evalFutures = new ArrayList<>();
-        for (RuleEvaluationService evalService : ruleEvalServices) {
-            evalFutures.add(CompletableFuture.supplyAsync(() -> evalService.evaluate(dto, ruleTable, ruleMap)));
+        for (RuleContract evalService : ruleEvalServices) {
+            evalFutures.add(CompletableFuture.supplyAsync(() -> evalService.evaluate(dto, ruleTable, ruleCodeList)));
         }
         CompletableFuture.allOf(evalFutures.toArray(new CompletableFuture[0])).join();
 

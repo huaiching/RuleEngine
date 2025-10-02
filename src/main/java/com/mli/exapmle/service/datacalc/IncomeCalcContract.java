@@ -1,15 +1,15 @@
 package com.mli.exapmle.service.datacalc;
 
 import com.mli.exapmle.dto.CalculationDto;
-import com.mli.exapmle.contract.DataCalculationService;
+import com.mli.exapmle.contract.DataCalcContract;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IncomeCalculationService implements DataCalculationService {
+public class IncomeCalcContract implements DataCalcContract {
 
     @Override
     public void calculate(CalculationDto dto) {
         // 模擬計算
-        dto.setIncome(10000.0);
+        dto.setIncome(60000.0);
     }
 }
