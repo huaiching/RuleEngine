@@ -1,4 +1,4 @@
-package com.mli.exapmle.service.utils;
+package com.mli.exapmle.service.helpers;
 
 import com.mli.exapmle.dto.CalculationDto;
 import org.springframework.stereotype.Service;

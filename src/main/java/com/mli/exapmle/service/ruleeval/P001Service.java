@@ -2,7 +2,7 @@ package com.mli.exapmle.service.ruleeval;
 
 import com.mli.exapmle.dto.CalculationDto;
 import com.mli.exapmle.contract.RuleEvaluationService;
-import com.mli.exapmle.service.utils.AgeRuleService;
+import com.mli.exapmle.service.helpers.AgeRuleService;
 import com.mli.exapmle.vo.RuleHitVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
