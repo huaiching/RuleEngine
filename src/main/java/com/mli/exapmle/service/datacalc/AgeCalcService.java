@@ -5,7 +5,7 @@ import com.mli.exapmle.contract.DataCalcContract;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AgeCalcContract implements DataCalcContract {
+public class AgeCalcService implements DataCalcContract {
 
     @Override
     public void calculate(CalculationDto dto) {

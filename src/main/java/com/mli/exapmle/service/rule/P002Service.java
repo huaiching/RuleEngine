@@ -17,7 +17,7 @@ public class P002Service implements RuleContract {
     private RuleHitSetService ruleHitSetService;
 
     @Override
-    public List<RuleHitVo> evaluate(CalculationDto dto, List<String> ruleTable, List<RuleCodeDto> ruleCodeList) {
+    public List<RuleHitVo> evaluate(CalculationDto dto, List<RuleCodeDto> ruleCodeList) {
         List<RuleHitVo> hits = new ArrayList<>();
         if (dto.getIncome() > 50000) {
             RuleHitVo ruleHitVo = ruleHitSetService.ruleHitType1("P002", ruleCodeList);

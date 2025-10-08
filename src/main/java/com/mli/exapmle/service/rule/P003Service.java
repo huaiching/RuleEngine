@@ -20,7 +20,7 @@ public class P003Service implements RuleContract {
     private RuleHitSetService ruleHitSetService;
 
     @Override
-    public List<RuleHitVo> evaluate(CalculationDto dto, List<String> ruleTable, List<RuleCodeDto> ruleCodeList) {
+    public List<RuleHitVo> evaluate(CalculationDto dto, List<RuleCodeDto> ruleCodeList) {
         List<RuleHitVo> hits = new ArrayList<>();
         // 模擬檢核 年齡 < 30 出訊息
         if (!ageRuleService.ckeckAge30(dto)) {
