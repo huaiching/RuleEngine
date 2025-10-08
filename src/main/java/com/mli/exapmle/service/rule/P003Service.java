@@ -22,6 +22,13 @@ public class P003Service implements RuleContract {
     @Override
     public List<RuleHitVo> evaluate(CalculationDto dto, List<RuleCodeDto> ruleCodeList) {
         List<RuleHitVo> hits = new ArrayList<>();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         // 模擬檢核 年齡 < 30 出訊息
         if (!ageRuleService.ckeckAge30(dto)) {
             RuleHitVo ruleHitVo = ruleHitSetService.ruleHitType2("P003", dto.getClientId(), ruleCodeList);

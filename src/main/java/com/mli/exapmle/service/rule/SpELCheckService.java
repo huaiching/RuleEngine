@@ -16,6 +16,12 @@ public class SpELCheckService {
     public List<String> checkRule(RuleTableDto ruleTableDto, Map<String, Object> dataMap) {
         List<String> hitList = new ArrayList<>();
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         // 開始檢核
         ExpressionParser parser = new SpelExpressionParser();
         EvaluationContext context = new StandardEvaluationContext();

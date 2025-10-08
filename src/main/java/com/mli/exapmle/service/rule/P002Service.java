@@ -19,6 +19,13 @@ public class P002Service implements RuleContract {
     @Override
     public List<RuleHitVo> evaluate(CalculationDto dto, List<RuleCodeDto> ruleCodeList) {
         List<RuleHitVo> hits = new ArrayList<>();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         if (dto.getIncome() > 50000) {
             RuleHitVo ruleHitVo = ruleHitSetService.ruleHitType1("P002", ruleCodeList);
 

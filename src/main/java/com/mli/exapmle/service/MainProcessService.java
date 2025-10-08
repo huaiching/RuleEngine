@@ -41,6 +41,8 @@ public class MainProcessService {
     private List<SpELCalcContract> spELCalcContractList;  // 自動注入所有子類
 
     public OutputVo executeProcess(InputDto inputDto) {
+        long start = System.currentTimeMillis();
+
         OutputVo outputVo = new OutputVo();
         CalculationDto dto = new CalculationDto();
 
@@ -51,6 +53,7 @@ public class MainProcessService {
         List<RuleTableDto> ruleTableList = ruleTableService.getRuleTable();
         List<RuleCodeDto> ruleCodeList = ruleTableService.getRuleCodeToChineseMap();
 
+        /*** 數據計算 ***/
 
         // 數據計算: 非同步
         List<CompletableFuture<Void>> calcFutures = new ArrayList<>();
@@ -59,6 +62,7 @@ public class MainProcessService {
         }
         CompletableFuture.allOf(calcFutures.toArray(new CompletableFuture[0])).join();
 
+        /*** 程式規則檢核 ***/
 
         // 規則判斷: 非同步 處理
         List<CompletableFuture<List<RuleHitVo>>> ruleFutures = new ArrayList<>();
@@ -74,6 +78,7 @@ public class MainProcessService {
         }
         outputVo.setRuleHitVoList(allHitCodes);
 
+        /*** spEL 規則檢核 ***/
 
         // spEL 數據設定: 非同步 處理
         List<CompletableFuture<Map<String, Object>>> spELCalcFutures = new ArrayList<>();
@@ -96,6 +101,11 @@ public class MainProcessService {
             spELRuleList.addAll(result);
         });
         outputVo.setSpELRuleList(spELRuleList);
+
+
+        long end = System.currentTimeMillis();
+        double diff = (double) (end - start) / 1000;
+        System.out.println("執行時間: " + diff + " 秒");
 
 
         return outputVo;
