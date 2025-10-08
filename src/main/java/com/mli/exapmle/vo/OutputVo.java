@@ -6,24 +6,15 @@ import java.util.List;
 
 @Schema(description = "規則檢核結果")
 public class OutputVo {
-    @Schema(description = "程式碼檢核結果")
-    private List<RuleHitVo> ruleHitVoList;
-    @Schema(description = "spEL檢核結果")
-    private List<String> spELRuleList;
+    @Schema(description = "檢核結果")
+    private List<String> ruleList;
 
-    public List<RuleHitVo> getRuleHitVoList() {
-        return ruleHitVoList;
+    public List<String> getRuleList() {
+
+        return ruleList;
     }
 
-    public void setRuleHitVoList(List<RuleHitVo> ruleHitVoList) {
-        this.ruleHitVoList = ruleHitVoList;
-    }
-
-    public List<String> getSpELRuleList() {
-        return spELRuleList;
-    }
-
-    public void setSpELRuleList(List<String> spELRuleList) {
-        this.spELRuleList = spELRuleList;
+    public void setRuleList(List<String> ruleList) {
+        this.ruleList = ruleList;
     }
 }

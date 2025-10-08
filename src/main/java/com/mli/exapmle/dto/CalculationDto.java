@@ -1,9 +1,9 @@
 package com.mli.exapmle.dto;
 
 public class CalculationDto {
-    private Integer age;    // 示例欄位: 年齡
-    private Double income;  // 示例欄位: 收入
-    private String clientId; // 示範欄位: 申請人
+    private Integer age;
+    private Double income;
+    private InputDto input;
 
 
     public Integer getAge() {
@@ -22,11 +22,11 @@ public class CalculationDto {
         this.income = income;
     }
 
-    public String getClientId() {
-        return clientId;
+    public InputDto getInput() {
+        return input;
     }
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
+    public void setInput(InputDto input) {
+        this.input = input;
     }
 }

@@ -4,11 +4,9 @@ package com.mli.exapmle.service;
 import com.mli.exapmle.contract.SpELCalcContract;
 import com.mli.exapmle.dto.CalculationDto;
 import com.mli.exapmle.dto.InputDto;
-import com.mli.exapmle.dto.RuleCodeDto;
 import com.mli.exapmle.dto.RuleTableDto;
 import com.mli.exapmle.service.rule.SpELCheckService;
 import com.mli.exapmle.vo.OutputVo;
-import com.mli.exapmle.vo.RuleHitVo;
 import com.mli.exapmle.contract.DataCalcContract;
 import com.mli.exapmle.contract.RuleContract;
 import org.springframework.beans.BeanUtils;
@@ -20,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
 public class MainProcessService {
@@ -47,11 +44,10 @@ public class MainProcessService {
         CalculationDto dto = new CalculationDto();
 
         // 輸入資料複製
-        BeanUtils.copyProperties(inputDto, dto);
+        dto.setInput(inputDto);
 
         // 讀取規則表
         List<RuleTableDto> ruleTableList = ruleTableService.getRuleTable();
-        List<RuleCodeDto> ruleCodeList = ruleTableService.getRuleCodeToChineseMap();
 
         /*** 數據計算 ***/
 
@@ -62,28 +58,11 @@ public class MainProcessService {
         }
         CompletableFuture.allOf(calcFutures.toArray(new CompletableFuture[0])).join();
 
-        /*** 程式規則檢核 ***/
-
-        // 規則判斷: 非同步 處理
-        List<CompletableFuture<List<RuleHitVo>>> ruleFutures = new ArrayList<>();
-        for (RuleContract ruleContract : ruleContractList) {
-            ruleFutures.add(CompletableFuture.supplyAsync(() -> ruleContract.evaluate(dto, ruleCodeList)));
-        }
-        CompletableFuture.allOf(ruleFutures.toArray(new CompletableFuture[0])).join();
-
-        // 規則判斷: 收集所有命中規則
-        List<RuleHitVo> allHitCodes = new ArrayList<>();
-        for (CompletableFuture<List<RuleHitVo>> future : ruleFutures) {
-            allHitCodes.addAll(future.join());
-        }
-        outputVo.setRuleHitVoList(allHitCodes);
-
-        /*** spEL 規則檢核 ***/
 
         // spEL 數據設定: 非同步 處理
         List<CompletableFuture<Map<String, Object>>> spELCalcFutures = new ArrayList<>();
         for (SpELCalcContract spELCalcContract : spELCalcContractList) {
-            spELCalcFutures.add(CompletableFuture.supplyAsync(() -> spELCalcContract.calculate()));
+            spELCalcFutures.add(CompletableFuture.supplyAsync(() -> spELCalcContract.calculate(dto)));
         }
         CompletableFuture.allOf(spELCalcFutures.toArray(new CompletableFuture[0])).join();
 
@@ -93,14 +72,27 @@ public class MainProcessService {
             dataMap.putAll(future.join());
         }
 
+        /*** 規則檢核 ***/
+
+        List<CompletableFuture<List<String>>> ruleFutures = new ArrayList<>();
+
+        // 1. 程式規則檢核
+        for (RuleContract ruleContract : ruleContractList) {
+            ruleFutures.add(CompletableFuture.supplyAsync(() -> ruleContract.evaluate(dto)));
+        }
+        // 2. spEL 規則檢核
+        ruleTableList.parallelStream().forEach(ruleTable -> {
+            ruleFutures.add(CompletableFuture.supplyAsync(() -> spELCheckService.checkRule(ruleTable, dataMap)));
+        });
+
+        CompletableFuture.allOf(ruleFutures.toArray(new CompletableFuture[0])).join();
 
         // spEL 規則判斷
-        List<String> spELRuleList = new CopyOnWriteArrayList<>();
-        ruleTableList.parallelStream().forEach(ruleTable -> {
-            List<String> result = spELCheckService.checkRule(ruleTable, dataMap);
-            spELRuleList.addAll(result);
-        });
-        outputVo.setSpELRuleList(spELRuleList);
+        List<String> ruleList = new ArrayList<>();
+        for (CompletableFuture<List<String>> future : ruleFutures) {
+            ruleList.addAll(future.join());
+        }
+        outputVo.setRuleList(ruleList);
 
 
         long end = System.currentTimeMillis();

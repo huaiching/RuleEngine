@@ -2,10 +2,7 @@ package com.mli.exapmle.service.rule;
 
 import com.mli.exapmle.dto.CalculationDto;
 import com.mli.exapmle.contract.RuleContract;
-import com.mli.exapmle.dto.RuleCodeDto;
 import com.mli.exapmle.service.helpers.AgeRuleService;
-import com.mli.exapmle.service.helpers.RuleHitSetService;
-import com.mli.exapmle.vo.RuleHitVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +13,10 @@ import java.util.List;
 public class P003Service implements RuleContract {
     @Autowired
     private AgeRuleService ageRuleService;
-    @Autowired
-    private RuleHitSetService ruleHitSetService;
 
     @Override
-    public List<RuleHitVo> evaluate(CalculationDto dto, List<RuleCodeDto> ruleCodeList) {
-        List<RuleHitVo> hits = new ArrayList<>();
+    public List<String> evaluate(CalculationDto dto) {
+        List<String> hits = new ArrayList<>();
 
         try {
             Thread.sleep(1000);
@@ -29,11 +24,8 @@ public class P003Service implements RuleContract {
             throw new RuntimeException(e);
         }
 
-        // 模擬檢核 年齡 < 30 出訊息
-        if (!ageRuleService.ckeckAge30(dto)) {
-            RuleHitVo ruleHitVo = ruleHitSetService.ruleHitType2("P003", dto.getClientId(), ruleCodeList);
-
-            hits.add(ruleHitVo);
+        if (!ageRuleService.ckeckAge65(dto)) {
+            hits.add("P003");
         }
         return hits;
     }

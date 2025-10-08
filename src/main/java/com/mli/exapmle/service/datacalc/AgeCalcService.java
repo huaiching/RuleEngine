@@ -10,6 +10,6 @@ public class AgeCalcService implements DataCalcContract {
     @Override
     public void calculate(CalculationDto dto) {
         // 模擬計算
-        dto.setAge(25);
+        dto.setAge(40);
     }
 }

@@ -10,8 +10,8 @@ public class AgeRuleService {
         return dto.getAge() >= 18;
     }
 
-    public boolean ckeckAge30(CalculationDto dto) {
-        return dto.getAge() >= 30;
+    public boolean ckeckAge65(CalculationDto dto) {
+        return dto.getAge() >= 65;
     }
 
 }
