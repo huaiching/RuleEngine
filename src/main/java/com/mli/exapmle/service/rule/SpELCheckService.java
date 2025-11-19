@@ -10,9 +10,11 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SpELCheckService {
@@ -20,6 +22,14 @@ public class SpELCheckService {
 
     // SpEL 表達式解析器全局單例: 避免 多次 new 浪費記憶體
     private static final ExpressionParser PARSER = new SpelExpressionParser();
+
+    /**
+     * 表達式緩存
+     * - Key: ruleCode 字串
+     * - Value: 已解析的 Expression 對象
+     */
+    private final Map<String, Expression> expressionCache = new ConcurrentHashMap<>();
+    private static final int MAX_CACHE_SIZE = 1000;
 
     /**
      * 啟動 spel 檢核
@@ -68,8 +78,20 @@ public class SpELCheckService {
 
         // 進行規則檢核
         try {
-            Boolean result = PARSER.parseExpression(ruleCode.trim())
-                    .getValue(context, Boolean.class);
+//            Boolean result = PARSER.parseExpression(ruleCode.trim())
+//                    .getValue(context, Boolean.class);
+
+            // 從緩存獲取或解析（Key 是完整的 ruleCode）
+            Expression expression = expressionCache.computeIfAbsent(ruleCode, code -> {
+                // 檢查緩存大小，防止無限增長
+                if (expressionCache.size() >= MAX_CACHE_SIZE) {
+                    log.warn("表達式緩存已達上限 {}，清除最舊的 20% 項目", MAX_CACHE_SIZE);
+                    evictOldestEntries();
+                }
+                return PARSER.parseExpression(code);
+            });
+
+            Boolean result = expression.getValue(context, Boolean.class);
 
             if (Boolean.TRUE.equals(result)) {
                 return ruleTableDto.getRuleItem();
@@ -91,5 +113,22 @@ public class SpELCheckService {
         }
 
         return null;
+    }
+
+    /**
+     * 當緩存滿時，清除最舊的 20% 項目
+     */
+    private void evictOldestEntries() {
+        int removeCount = MAX_CACHE_SIZE / 5; // 清除 20%
+        Iterator<String> iterator = expressionCache.keySet().iterator();
+
+        int removed = 0;
+        while (iterator.hasNext() && removed < removeCount) {
+            iterator.next();
+            iterator.remove();
+            removed++;
+        }
+
+        log.info("已清除 {} 個舊的表達式緩存項目", removed);
     }
 }
