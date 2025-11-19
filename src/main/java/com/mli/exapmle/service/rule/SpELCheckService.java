@@ -29,7 +29,6 @@ public class SpELCheckService {
      * - Value: 已解析的 Expression 對象
      */
     private final Map<String, Expression> expressionCache = new ConcurrentHashMap<>();
-    private static final int MAX_CACHE_SIZE = 1000;
 
     /**
      * 啟動 spel 檢核
@@ -84,8 +83,8 @@ public class SpELCheckService {
             // 從緩存獲取或解析（Key 是完整的 ruleCode）
             Expression expression = expressionCache.computeIfAbsent(ruleCode, code -> {
                 // 檢查緩存大小，防止無限增長
-                if (expressionCache.size() >= MAX_CACHE_SIZE) {
-                    log.warn("表達式緩存已達上限 {}，清除最舊的 20% 項目", MAX_CACHE_SIZE);
+                if (expressionCache.size() >= 1000) {
+                    log.warn("表達式緩存已達上限 {}，清除最舊的 20% 項目", 1000);
                     evictOldestEntries();
                 }
                 return PARSER.parseExpression(code);
