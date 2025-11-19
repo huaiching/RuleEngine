@@ -76,22 +76,20 @@ public class MainProcessService {
 
         List<CompletableFuture<List<String>>> ruleFutures = new ArrayList<>();
 
-        // 1. 程式規則檢核
+//        // 1. 程式規則檢核
         for (RuleContract ruleContract : ruleContractList) {
             ruleFutures.add(CompletableFuture.supplyAsync(() -> ruleContract.evaluate(dto)));
         }
         // 2. spEL 規則檢核
-        ruleTableList.parallelStream().forEach(ruleTable -> {
-            ruleFutures.add(CompletableFuture.supplyAsync(() -> spELCheckService.checkRule(ruleTable, dataMap)));
-        });
-
-        CompletableFuture.allOf(ruleFutures.toArray(new CompletableFuture[0])).join();
+        List<String> spelRuleList = spELCheckService.execute(ruleTableList, dataMap);
 
         // spEL 規則判斷
         List<String> ruleList = new ArrayList<>();
         for (CompletableFuture<List<String>> future : ruleFutures) {
             ruleList.addAll(future.join());
         }
+        ruleList.addAll(spelRuleList);
+
         outputVo.setRuleList(ruleList);
 
 
