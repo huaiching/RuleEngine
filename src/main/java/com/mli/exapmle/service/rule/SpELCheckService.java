@@ -118,7 +118,7 @@ public class SpELCheckService {
      * 當緩存滿時，清除最舊的 20% 項目
      */
     private void evictOldestEntries() {
-        int removeCount = MAX_CACHE_SIZE / 5; // 清除 20%
+        int removeCount = 1000 / 5; // 清除 20%
         Iterator<String> iterator = expressionCache.keySet().iterator();
 
         int removed = 0;
